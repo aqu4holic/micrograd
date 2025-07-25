@@ -1,3 +1,5 @@
+"""A simple implementation of a computational graph for automatic differentiation."""
+
 import math
 
 from graphviz import Digraph
@@ -141,6 +143,110 @@ class Value:
         # other / self or other * (self ** -1)
         return other * (self**-1)
 
+    def sin(self) -> 'Value':
+        """Define the sine function for Value objects."""
+
+        x: float = self.data
+        s: float = math.sin(x)
+        res = Value(s, _children=(self,), _op='sin', label='sin')
+
+        def _backward() -> None:
+            self.grad += math.cos(x) * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def cos(self) -> 'Value':
+        """Define the cosine function for Value objects."""
+
+        x: float = self.data
+        c: float = math.cos(x)
+        res = Value(c, _children=(self,), _op='cos', label='cos')
+
+        def _backward() -> None:
+            self.grad += -math.sin(x) * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def tan(self) -> 'Value':
+        """Define the tangent function for Value objects."""
+
+        x: float = self.data
+        t: float = math.tan(x)
+        res = Value(t, _children=(self,), _op='tan', label='tan')
+
+        def _backward() -> None:
+            self.grad += (1.0 / (math.cos(x) ** 2)) * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def cot(self) -> 'Value':
+        """Define the cotangent function for Value objects."""
+
+        x: float = self.data
+        c: float = 1.0 / math.tan(x)
+        res = Value(c, _children=(self,), _op='cot', label='cot')
+
+        def _backward() -> None:
+            self.grad += (-1.0 / (math.sin(x) ** 2)) * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def asin(self) -> 'Value':
+        """Define the arcsine function for Value objects."""
+
+        x: float = self.data
+        if abs(x) > 1:
+            raise ValueError('Arcsine undefined for |x| > 1')
+
+        a: float = math.asin(x)
+        res = Value(a, _children=(self,), _op='asin', label='asin')
+
+        def _backward() -> None:
+            self.grad += (1.0 / math.sqrt(1 - (x ** 2))) * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def acos(self) -> 'Value':
+        """Define the arccosine function for Value objects."""
+
+        x: float = self.data
+        if abs(x) > 1:
+            raise ValueError('Arccosine undefined for |x| > 1')
+
+        a: float = math.acos(x)
+        res = Value(a, _children=(self,), _op='acos', label='acos')
+
+        def _backward() -> None:
+            self.grad += (-1.0 / math.sqrt(1 - (x ** 2))) * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def atan(self) -> 'Value':
+        """Define the arctangent function for Value objects."""
+
+        x: float = self.data
+        a: float = math.atan(x)
+        res = Value(a, _children=(self,), _op='atan', label='atan')
+
+        def _backward() -> None:
+            self.grad += (1.0 / (1 + x**2)) * res.grad
+
+        res._backward = _backward
+
+        return res
+
     def relu(self) -> 'Value':
         """Define the ReLU activation function for Value objects."""
 
@@ -195,6 +301,22 @@ class Value:
 
         def _backward() -> None:
             self.grad += e * res.grad
+
+        res._backward = _backward
+
+        return res
+
+    def erf(self) -> 'Value':
+        """Define the error function for Value objects."""
+
+        x: float = self.data
+        e: float = math.erf(x)
+
+        res = Value(e, _children=(self,), _op='erf', label='erf')
+
+        def _backward() -> None:
+            # d/dx erf(x) = (2 / sqrt(pi)) ** exp(-x^2)
+            self.grad += (2 / math.sqrt(math.pi)) * math.exp(-x ** 2) * res.grad
 
         res._backward = _backward
 

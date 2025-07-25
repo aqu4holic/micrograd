@@ -1,3 +1,5 @@
+"""Neural network modules for micrograd."""
+
 import numpy as np
 
 from micrograd.engine import Value

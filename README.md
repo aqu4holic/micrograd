@@ -2,9 +2,13 @@
 
 a reimplementation of Karpathy's micrograd in Python. currently only supports scalar values.
 
-added `__pow__` and `__rpow__` methods for exponentiation and reversed exponentiation with `Value` class. i've tested some values and compared the results with PyTorch, and they match (within 1e-6 tolerance).
+- added `__pow__` and `__rpow__` methods for exponentiation and reversed exponentiation with `Value` class.
+- added some geometric functions, and `erf` function.
 
-!!! with negative values, the logarithm is undefined, so the gradient will be nan, and the output will be in the complex plane.
+all functions have been tested with some values, tests are in the `test` folder.
+
+> [!CAUTION]
+> with negative values, the logarithm is undefined, so the gradient will be nan, and the output will be in the complex plane.
 for example:
 ```python
 from micrograd.engine import Value

@@ -97,7 +97,35 @@ def test_new_ops():
     assert abs(ymg.grad - ypt.grad.item()) < tol
     assert abs(zmg.grad - zpt.grad.item()) < tol
 
+def test_geometric_and_erf():
+    x = Value(5.0)
+    y = (2 ** (x)).erf().atan()
+    z = Value(3.0)
+    t = y.cos() + z.sin().asin()
+    t.backward()
+
+    xmg, zmg, tmg = x, z, t
+
+    x = torch.tensor([5.0]).double()
+    x.requires_grad = True
+    y = (2 ** (x)).erf().atan()
+    z = torch.tensor([3.0]).double()
+    z.requires_grad = True
+    t = y.cos() + z.sin().asin()
+    t.backward()
+
+    xpt, ypt, zpt, tpt = x, y, z, t
+
+    tol = 1e-6
+
+    # forward pass went well
+    assert abs(tmg.data - tpt.data.item()) < tol
+    # backward pass went well
+    assert abs(xmg.grad - xpt.grad.item()) < tol
+    assert abs(zmg.grad - zpt.grad.item()) < tol
+
 test_sanity_check()
 test_more_ops()
 test_new_ops()
+test_geometric_and_erf()
 print("All tests passed!")
